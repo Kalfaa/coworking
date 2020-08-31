@@ -32,6 +32,10 @@ export class OpenSpaceEntity {
     tools: ToolEntity[];
 
     toResponseObject(): OpenSpaceRO {
-      return {id:this.id,name:this.name,description:this.description};
+      let res =[];
+      this.tools.forEach(function(part) {
+        res.push( part.toResponseObject())
+      });
+      return {id:this.id,name:this.name,description:this.description,tools:res};
     }
 }

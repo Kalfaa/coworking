@@ -1,5 +1,6 @@
 import {ApiProperty, ApiPropertyOptional} from "@nestjs/swagger";
 import { IsNotEmpty } from 'class-validator';
+import { ToolRO } from '../tools/tool.dto';
 
 
 export class OpenSpaceRO {
@@ -9,6 +10,8 @@ export class OpenSpaceRO {
   name: string;
   @ApiPropertyOptional()
   description: string;
+  @ApiPropertyOptional()
+  tools: ToolRO[];
 }
 
 export class OpenSpaceCreation {

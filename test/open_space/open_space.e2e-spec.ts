@@ -10,10 +10,12 @@ import 'dotenv/config';
 import {UserEntity} from "../../src/user/user.entity";
 import { OpenSpaceModule } from '../../src/open_space/open_space.module';
 import { OpenSpaceCreation } from '../../src/open_space/open_space.dto';
+import { ToolCreation } from '../../src/tools/tool.dto';
 let token;
 let userId;
 let base = "openspace";
 let id ;
+let toolId;
 describe("OpenSpace route", ()=>{
     beforeAll(async()=> {
     const module = await
@@ -73,11 +75,44 @@ describe("OpenSpace route", ()=>{
       .expect(200).expect({
         id: id,
         name: 'Bastille',
-        description: 'description'
+        description: 'description',
+        tools:[]
+      });
+  });
+
+  it('/ (Post) Add tool', async () => {
+    let res = await  request(app.getHttpServer())
+      .post('/'+base+'/'+id+'/addTool').set('Authorization', 'Bearer ' + token)
+      .expect(400);
+  });
+
+  it('/ (Post) Add tool', async () => {
+    let toolcreation:ToolCreation={name:"Imprimante"};
+    let res = await  request(app.getHttpServer())
+      .post('/'+base+'/'+id+'/addTool').send(toolcreation).set('Authorization', 'Bearer ' + token)
+      .expect(201);
+  });
+
+  it('/ (Post) Test tool has been added', async () => {
+    let res = await  request(app.getHttpServer())
+      .get('/'+base+'/'+id+'/getTools').set('Authorization', 'Bearer ' + token)
+      .expect(200);
+    toolId = res.body[0].id;
+  });
+
+  it('/ (Post) Test tool has been added', async () => {
+    let res = await  request(app.getHttpServer())
+      .get('/'+base+'/'+id).set('Authorization', 'Bearer ' + token)
+      .expect(200).expect({
+        id: id,
+        name: 'Bastille',
+        description: 'description',
+        tools:[{ id: toolId, name: 'Imprimante' }]
       });
   });
 
     afterAll(async () => {
+        await repository.query('DELETE FROM tools;');
         await repository.query('DELETE FROM open_space;');
         await repository.query('DELETE FROM user;');
         await app.close();

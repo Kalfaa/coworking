@@ -2,6 +2,7 @@ import {HttpException, HttpStatus, Injectable, NotFoundException} from '@nestjs/
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import { BasicCrudService } from '../basic_crud.service';
+import { ToolEntity } from './tool.entity';
 
 
 
@@ -11,7 +12,7 @@ import { BasicCrudService } from '../basic_crud.service';
 export class ToolService extends BasicCrudService {
 
   constructor(
-    @InjectRepository(ToolService)
+    @InjectRepository(ToolEntity)
     private toolEntityRepository: Repository<ToolService>
   ) {
     super(toolEntityRepository)

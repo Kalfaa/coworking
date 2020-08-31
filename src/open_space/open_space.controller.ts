@@ -9,27 +9,39 @@ import { diskStorage } from  'multer';
 import { OpenSpaceEntity } from './open_space.entity';
 import { OpenSpaceService } from './open_space.service';
 import { OpenSpaceCreation, OpenSpaceRO } from './open_space.dto';
+import { ToolCreation } from '../tools/tool.dto';
+import { ToolService } from '../tools/tool.service';
+import { ToolEntity } from '../tools/tool.entity';
 
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 
 @Controller('openspace')
 @ApiTags('OpenSpace')
 export class OpenSpaceController {
-  constructor(private readonly openSpaceService: OpenSpaceService) {}
+  constructor(private readonly openSpaceService: OpenSpaceService,
+              private readonly toolService:ToolService) {}
 
-  /*
-  @Post(':playlistId/addMusic/:idMusic')
+
+  @Post(':id/addTool/')
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({})
-  async addMusic(@Param('playlistId') playlistId,@Param('idMusic') musicId,@User() user) {
-    return await this.playlistService.addMusic(playlistId,musicId,user.userId);
-  }*/
+  async addTool(@Param('id') id,@Body() toolCreation:ToolCreation) {
+     let tool = {name:toolCreation.name,openSpace:id};
+     return await this.toolService.create(tool);
+  }
+
+  @Get(':id/getTools/')
+  @UseGuards(JwtAuthGuard)
+  @ApiCreatedResponse({})
+  async getTools(@Param('id') id) {
+    return await this.toolService.findSomeWithConditions({openSpace:id});
+  }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({type: OpenSpaceEntity})
   async findById(@Param('id') id) {
-    let openSpace:OpenSpaceEntity = await this.openSpaceService.findOne(id);
+    let openSpace:OpenSpaceEntity = await this.openSpaceService.findOne(id,["tools"]);
     return openSpace.toResponseObject();
   }
 
@@ -37,10 +49,7 @@ export class OpenSpaceController {
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({type: [OpenSpaceRO]})
   async findAll(@User() user) {
-    /*users.forEach(function(part, index) {
-      this[index] = part.toResponseObject();
-    }, users);*/
-    let openSpaces =  await this.openSpaceService.findAll();
+    let openSpaces =  await this.openSpaceService.findAll(["tools"]);
     openSpaces.forEach(function(part, index) {
       this[index] = part.toResponseObject();
     }, openSpaces);

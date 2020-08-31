@@ -11,6 +11,8 @@ import {
 import {UserEntity} from "../user/user.entity";
 import { SubscriptionType } from '../user/user.dto';
 import { OpenSpaceEntity } from '../open_space/open_space.entity';
+import { OpenSpaceRO } from '../open_space/open_space.dto';
+import { ToolRO } from './tool.dto';
 
 @Entity('tools')
 export class ToolEntity {
@@ -20,9 +22,10 @@ export class ToolEntity {
     @Column('text')
     name: string;
 
-    @Column('text')
-    description: string;
-
     @ManyToOne(type => OpenSpaceEntity, openSpace => openSpace.id)
     openSpace: OpenSpaceEntity;
+
+    toResponseObject(): ToolRO {
+      return {id:this.id,name:this.name};
+    }
 }
