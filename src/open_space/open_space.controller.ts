@@ -11,10 +11,6 @@ import { OpenSpaceService } from './open_space.service';
 import { OpenSpaceCreation, OpenSpaceRO } from './open_space.dto';
 import { ToolCreation } from '../tools/tool.dto';
 import { ToolService } from '../tools/tool.service';
-import { ToolEntity } from '../tools/tool.entity';
-
-const { getAudioDurationInSeconds } = require('get-audio-duration');
-
 @Controller('openspace')
 @ApiTags('OpenSpace')
 export class OpenSpaceController {
@@ -39,7 +35,7 @@ export class OpenSpaceController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiCreatedResponse({type: OpenSpaceEntity})
+  @ApiCreatedResponse({type: OpenSpaceRO})
   async findById(@Param('id') id) {
     let openSpace:OpenSpaceEntity = await this.openSpaceService.findOne(id,["tools"]);
     return openSpace.toResponseObject();
@@ -67,7 +63,7 @@ export class OpenSpaceController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({})
-  async deleteMusic(@Param('id') id) {
+  async delete(@Param('id') id) {
     return await this.openSpaceService.delete(id);
   }
 
