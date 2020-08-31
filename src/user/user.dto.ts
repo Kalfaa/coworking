@@ -1,6 +1,12 @@
 import {IsEmail, IsNotEmpty} from 'class-validator';
 import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
 
+export enum SubscriptionType {
+  SIMPLE = "SIMPLE",
+  RESIDENT = "RESOLVE",
+  NONE="NONE"
+}
+
 
 export class UserDTO {
     id:string;
