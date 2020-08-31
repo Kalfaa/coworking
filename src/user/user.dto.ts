@@ -86,3 +86,8 @@ export class addXp {
     @ApiProperty()
     xp: number;
 }
+
+export class AddSubscription {
+    subscriptionType:SubscriptionType;
+    month:number;
+}

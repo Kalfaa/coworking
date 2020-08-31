@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 
 import {UserService} from "./user.service";
-import {addXp, UserDTO, UserModif} from "./user.dto";
+import { AddSubscription, addXp, UserDTO, UserModif } from './user.dto';
 import {JwtAuthGuard} from "../auth/jwt-auth.guard";
 import {User} from "../decorator/user.decorator";
 import {ApiTags} from "@nestjs/swagger";
@@ -26,5 +26,11 @@ export class UserController {
     {
         return await this.userService.update(user.userId,patientDto);
     }*/
-
+      @UseGuards(JwtAuthGuard)
+      @Post('')
+      @HttpCode(204)
+      async addSubscription(@User() user,@Body() addSubscription:AddSubscription)
+      {
+        return await this.userService.addSubscription(user.userId,addSubscription);
+      }
 }

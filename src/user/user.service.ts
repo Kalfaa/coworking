@@ -3,9 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserEntity } from './user.entity';
-import {AdminCreation, UserCreation, UserDTO, UserModif} from './user.dto';
+import { AddSubscription, AdminCreation, SubscriptionType, UserCreation, UserDTO, UserModif } from './user.dto';
 import {UserLogin} from "../auth/auth.validation";
 import * as bcrypt from 'bcryptjs';
+import { Subscription } from 'rxjs';
 
 @Injectable()
 export class UserService {
@@ -82,4 +83,12 @@ export class UserService {
     async findByUserName(username:string) :Promise<UserEntity | undefined>{
         return await this.userRepository.findOne({where:{username:username}});
     }
+
+   addSubscription(userId:string,subscription:AddSubscription) {
+        let now:Date = new Date();
+        let endOfSubscription = new Date(now.setMonth(now.getMonth()+subscription.month));
+        //TODO CONTINUER
+
+
+   }
 }
