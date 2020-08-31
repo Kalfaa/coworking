@@ -18,13 +18,13 @@ import {ApiTags} from "@nestjs/swagger";
 @ApiTags('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
-
+    /*
     @UseGuards(JwtAuthGuard)
     @Patch('')
     @HttpCode(204)
     async update(@User() user,@Body() patientDto:UserModif)
     {
         return await this.userService.update(user.userId,patientDto);
-    }
+    }*/
 
 }
