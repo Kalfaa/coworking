@@ -1,8 +1,18 @@
 
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
-import {UserRO} from "./user.dto";
-import {BeforeInsert, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import { SubscriptionType, UserRO } from './user.dto';
+import {
+  BeforeInsert,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { SubscriptionEntity } from '../subscription/subscription.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -26,7 +36,11 @@ export class UserEntity {
     })
     isAdmin:boolean;
 
-    @BeforeInsert()
+    @OneToOne(type => SubscriptionEntity,sub=>sub.user)
+    subscription: SubscriptionEntity;
+
+
+  @BeforeInsert()
     async hashPassword() {
         this.password = await bcrypt.hash(this.password, 10);
     }

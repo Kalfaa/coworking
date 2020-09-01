@@ -13,11 +13,13 @@ import { AddSubscription, addXp, UserDTO, UserModif } from './user.dto';
 import {JwtAuthGuard} from "../auth/jwt-auth.guard";
 import {User} from "../decorator/user.decorator";
 import {ApiTags} from "@nestjs/swagger";
+import { SubscriptionService } from '../subscription/subscription.service';
 
 @Controller('user')
 @ApiTags('user')
 export class UserController {
-    constructor(private readonly userService: UserService) {}
+    constructor(private readonly userService: UserService,
+                private readonly subscriptionService: SubscriptionService ) {}
     /*
     @UseGuards(JwtAuthGuard)
     @Patch('')
@@ -27,10 +29,29 @@ export class UserController {
         return await this.userService.update(user.userId,patientDto);
     }*/
       @UseGuards(JwtAuthGuard)
-      @Post('')
-      @HttpCode(204)
+      @Post('addSubscription')
       async addSubscription(@User() user,@Body() addSubscription:AddSubscription)
       {
-        return await this.userService.addSubscription(user.userId,addSubscription);
+        let now = new Date();
+        let endOfSubscription = new Date(now.setMonth(now.getMonth()+addSubscription.month));
+        let createSubscription = {user:user.userId,end:endOfSubscription,type:addSubscription.subscriptionType};
+        console.log(createSubscription);
+        return await this.subscriptionService.create(createSubscription);
       }
+
+      @UseGuards(JwtAuthGuard)
+      @Get('')
+      async read()
+      {
+        return await this.userService.findAll(['subscription']);
+      }
+
+      @UseGuards(JwtAuthGuard)
+      @Get(':id')
+      async findById(@Param('id') id)
+      {
+        //TODO PROBLEM AVEC LES CONDITIONS
+        return await this.userService.findOneWithConditions({id:id},['subscription']);
+      }
+
 }

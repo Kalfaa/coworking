@@ -7,13 +7,16 @@ import { AddSubscription, AdminCreation, SubscriptionType, UserCreation, UserDTO
 import {UserLogin} from "../auth/auth.validation";
 import * as bcrypt from 'bcryptjs';
 import { Subscription } from 'rxjs';
+import { BasicCrudService } from '../basic_crud.service';
 
 @Injectable()
-export class UserService {
+export class UserService extends BasicCrudService {
     constructor(
         @InjectRepository(UserEntity)
         private userRepository: Repository<UserEntity>,
-    ) {}
+    ) {
+        super(userRepository);
+    }
 
     async login(data: UserLogin) {
         const { username, password } = data;
@@ -61,12 +64,12 @@ export class UserService {
     }
 
 
-
+    /*
     async update(userId:string,change:UserModif){
         let me = await this.userRepository.findOne({where:{id:userId}});
         await this.userRepository.update(userId, me);
-
     }
+    */
 
     async changePassword(userId:string,password:string){
         let me = await this.userRepository.findOne({where:{id:userId}});
@@ -84,11 +87,4 @@ export class UserService {
         return await this.userRepository.findOne({where:{username:username}});
     }
 
-   addSubscription(userId:string,subscription:AddSubscription) {
-        let now:Date = new Date();
-        let endOfSubscription = new Date(now.setMonth(now.getMonth()+subscription.month));
-        //TODO CONTINUER
-
-
-   }
 }

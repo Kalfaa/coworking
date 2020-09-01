@@ -16,7 +16,7 @@ export class SubscriptionEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @OneToOne(type => UserEntity)
+    @OneToOne(type => UserEntity,user =>user.id)
     @JoinColumn()
     user: UserEntity;
 
@@ -25,8 +25,9 @@ export class SubscriptionEntity {
       enum: SubscriptionType,
       default: SubscriptionType.NONE
       })
-    state:SubscriptionType;
+    type:SubscriptionType;
 
     @Column("date")
     end: Date;
+
 }

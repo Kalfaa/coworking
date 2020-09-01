@@ -88,6 +88,8 @@ export class addXp {
 }
 
 export class AddSubscription {
-    subscriptionType:SubscriptionType;
-    month:number;
+  @IsNotEmpty()
+  subscriptionType:SubscriptionType;
+  @IsNotEmpty()
+  month:number;
 }
