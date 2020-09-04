@@ -13,6 +13,7 @@ import { SubscriptionType } from '../user/user.dto';
 import { OpenSpaceEntity } from '../open_space/open_space.entity';
 import { OpenSpaceRO } from '../open_space/open_space.dto';
 import { ToolRO } from './tool.dto';
+import { ReservationEntity } from '../reservation/reservation.entity';
 
 @Entity('tools')
 export class ToolEntity {
@@ -24,6 +25,11 @@ export class ToolEntity {
 
     @ManyToOne(type => OpenSpaceEntity, openSpace => openSpace.id)
     openSpace: OpenSpaceEntity;
+
+
+    @ManyToOne(type => ReservationEntity, res => res.tools)
+    @JoinColumn()
+    res: ReservationEntity;
 
     toResponseObject(): ToolRO {
       return {id:this.id,name:this.name};

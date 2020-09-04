@@ -7,7 +7,7 @@ export class BasicCrudService {
     private repository: Repository<any>,
   ) {}
 
-  async create(objectDTO:any){
+  async create(objectDTO:any):Promise<Array<any> | undefined> {
     let object = await this.repository.create(objectDTO);
     await this.repository.save(object);
     return object;
@@ -26,8 +26,7 @@ export class BasicCrudService {
     if(!object){
       throw new HttpException('Resource not found', HttpStatus.NOT_FOUND);
     }
-    return await this.repository.update(objectDTO.id, objectDTO);
-  }
+    return await this.repository.save(objectDTO);  }
 
   async findOne(id: string,relations=[]): Promise<any | undefined> {
     let object = await this.repository.findOne({ where: { id },relations: relations });

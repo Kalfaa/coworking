@@ -62,7 +62,7 @@ describe("User route", ()=>{
       .post('/'+base+'/addSubscription').send(subscription).set('Authorization', 'Bearer ' + token)
       .expect(201)
   });
-  
+
 
   it('/ (Post) Get user should find subscription', () => {
     console.log(userId);

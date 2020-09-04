@@ -11,11 +11,21 @@ import {UserEntity} from "../../src/user/user.entity";
 import { OpenSpaceModule } from '../../src/open_space/open_space.module';
 import { OpenSpaceCreation } from '../../src/open_space/open_space.dto';
 import { ToolCreation } from '../../src/tools/tool.dto';
+import { ReservationModule } from '../../src/reservation/reservation.module';
+import { ReservationCreation } from '../../src/reservation/reservation.dto';
+import { RoomCreation } from '../../src/room/room.dto';
+import { RoomModule } from '../../src/room/room.module';
+import { addDays, addHours, addYears, subDays, subYears } from 'date-fns';
+let now = new Date();
 let token;
 let userId;
 let base = "openspace";
 let id ;
 let toolId;
+let roomId;
+let roomId2;
+let idRes;
+let idRes2;
 describe("OpenSpace route", ()=>{
     beforeAll(async()=> {
     const module = await
@@ -23,6 +33,8 @@ describe("OpenSpace route", ()=>{
         imports: [
             AuthModule,
             OpenSpaceModule,
+            ReservationModule,
+            RoomModule,
             // Use the e2e_test database to run the tests
             TypeOrmModule.forRoot({
                 type: "mysql",
@@ -111,11 +123,170 @@ describe("OpenSpace route", ()=>{
       });
   });
 
-    afterAll(async () => {
-        await repository.query('DELETE FROM tools;');
-        await repository.query('DELETE FROM open_space;');
-        await repository.query('DELETE FROM user;');
-        await app.close();
+  it('/ (Post) Create room' , async () => {
+    let room:RoomCreation = {name:"room Causy",description:"Une room causy",openSpace:id};
+    let res = await  request(app.getHttpServer())
+      .post('/room/').send(room).set('Authorization', 'Bearer ' + token)
+      .expect(201);
+  });
+  it('/ (Post) Get Room has been added', async () => {
+    let res = await  request(app.getHttpServer())
+      .get('/room/').set('Authorization', 'Bearer ' + token)
+      .expect(200);
+    expect(res.body.length).toBe(1);
+  });
+
+
+  it('/ (Post) Create second room' , async () => {
+    let room:RoomCreation = {name:"room chill",description:"Une room chill",openSpace:id};
+    let res = await  request(app.getHttpServer())
+      .post('/room/').send(room).set('Authorization', 'Bearer ' + token)
+      .expect(201);
+  });
+
+  it('/ (Post) Get Room has been added', async () => {
+    let res = await  request(app.getHttpServer())
+      .get('/room/').set('Authorization', 'Bearer ' + token)
+      .expect(200);
+    roomId = res.body[0].id;
+    roomId2 = res.body[1].id;
+    expect(res.body.length).toBe(2);
+  });
+
+
+
+  it('/ (Post) Create room should fail' , async () => {
+    let room:RoomCreation = {name:"room Causy",description:"Une room causy",openSpace:"ezea"};
+    let res = await  request(app.getHttpServer())
+      .post('/room/').send(room).set('Authorization', 'Bearer ' + token)
+      .expect(404);
+  });
+
+
+
+
+  it('/ (Post) Reservation', async () => {
+    let start = new Date(2018, 8, 22, 15, 0, 0);
+    let end = new Date(2018, 8, 22, 16, 0, 0);
+    let reservation:ReservationCreation = {start:start,end:   end,food:0,room:roomId,tools:[]};
+    return await  request(app.getHttpServer())
+      .post('/reservation/').send(reservation).set('Authorization', 'Bearer ' + token)
+      .expect(201);
+  });
+
+  it('/ (Post) Reservation', async () => {
+    let start = new Date(2018, 8, 22, 15, 0, 0);
+    let end = new Date(2018, 8, 22, 16, 0, 0);
+    let reservation:ReservationCreation = {start:start,end:   end,food:0,room:roomId2,tools:[]};
+    return await  request(app.getHttpServer())
+      .post('/reservation/').send(reservation).set('Authorization', 'Bearer ' + token)
+      .expect(201);
+  });
+
+
+  it('/ (Post) Get Reservation should be created', async () => {
+    let res = await  request(app.getHttpServer())
+      .get('/reservation/').set('Authorization', 'Bearer ' + token)
+      .expect(200);
+    expect(res.body.length).toBe(2);
+    idRes = res.body[0].id;
+    idRes2 = res.body[1].id;
+
+  });
+
+
+  it('/ (Post) Get Reservation should nbe created', async () => {
+    let res = await  request(app.getHttpServer())
+      .post('/reservation/'+idRes+'/addTools').send({tools:[toolId]}).set('Authorization', 'Bearer ' + token)
+      .expect(201);
+  });
+
+  it('/ (Post) Get Reservation should nbe created', async () => {
+    let res = await  request(app.getHttpServer())
+      .post('/reservation/'+idRes+'/addTools').send({tools:[toolId]}).set('Authorization', 'Bearer ' + token)
+      .expect(409);
+  });
+
+
+  it('/ (Post) Get Reservation should not be created', async () => {
+    let res = await  request(app.getHttpServer())
+      .post('/reservation/'+idRes2+'/addTools').send({tools:[toolId]}).set('Authorization', 'Bearer ' + token)
+      .expect(409);
+  });
+
+
+  it('/ (Post) Reservation on the same moment should fail', async () => {
+    let start = new Date(2018, 8, 22, 15, 0, 0);
+    let end = new Date(2018, 8, 22, 15, 30, 0);
+    let reservation:ReservationCreation = {start:start,end:   end,food:0,room:roomId,tools:[]};
+    return await  request(app.getHttpServer())
+      .post('/reservation/').send(reservation).set('Authorization', 'Bearer ' + token)
+      .expect(409);
+  });
+
+
+  it('/ (Post) Reservation should be ok', async () => {
+    let start = new Date(2018, 8, 22, 10, 0, 0);
+    let end = new Date(2018, 8, 22, 11, 0, 0);
+    let reservation:ReservationCreation = {start:start,end:   end,food:0,room:roomId,tools:[]};
+    return await  request(app.getHttpServer())
+      .post('/reservation/').send(reservation).set('Authorization', 'Bearer ' + token)
+      .expect(201);
+  });
+
+
+  it('/ (Post) Reservation should be ok', async () => {
+    let start = new Date(2018, 8, 22, 11, 0, 0);
+    let end = new Date(2018, 8, 22, 12, 0, 0);
+    let reservation:ReservationCreation = {start:start,end:   end,food:0,room:roomId,tools:[toolId]};
+    await  request(app.getHttpServer())
+      .post('/reservation/').send(reservation).set('Authorization', 'Bearer ' + token)
+      .expect(201);
+    let res = await  request(app.getHttpServer())
+      .get('/reservation/').set('Authorization', 'Bearer ' + token)
+      .expect(200);
+  });
+
+  it('/ (Post) Reservation with tool should be Ko', async () => {
+    let start = new Date(2018, 8, 22, 11, 0, 0);
+    let end = new Date(2018, 8, 22, 12, 0, 0);
+    let reservation:ReservationCreation = {start:start,end:   end,food:0,room:roomId2,tools:[toolId]};
+    return await  request(app.getHttpServer())
+      .post('/reservation/').send(reservation).set('Authorization', 'Bearer ' + token)
+      .expect(409);
+  });
+
+
+
+
+
+  it('/ (Post) Reservation with tool should be Ko', async () => {
+    let start = new Date(2018, 8, 22, 12, 0, 0);
+    let end = new Date(2018, 8, 22, 14, 0, 0);
+    let reservation:ReservationCreation = {start:start,end:   end,food:0,room:roomId2,tools:[toolId]};
+    return await  request(app.getHttpServer())
+      .post('/reservation/').send(reservation).set('Authorization', 'Bearer ' + token)
+      .expect(201);
+  });
+
+
+  it('/ (Post) Reservation should be KO', async () => {
+    let start = new Date(2018, 8, 22, 9, 0, 0);
+    let end = new Date(2018, 8, 22, 12, 0, 0);
+    let reservation:ReservationCreation = {start:start,end:   end,food:0,room:roomId,tools:[]};
+    let res = await  request(app.getHttpServer())
+      .post('/reservation/').send(reservation).set('Authorization', 'Bearer ' + token)
+      .expect(409);
+  });
+
+
+  afterAll(async () => {
+      await repository.query('DELETE FROM tools;');
+      await repository.query('DELETE FROM reservations');
+      await repository.query('DELETE FROM room;');
+      await repository.query('DELETE FROM open_space;');
+      await repository.query('DELETE FROM user;');
+      await app.close();
     });
 
 });

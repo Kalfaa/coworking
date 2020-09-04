@@ -5,6 +5,7 @@ import { OpenSpaceService } from './open_space.service';
 import { OpenSpaceController } from './open_space.controller';
 import { OpenSpaceEntity } from './open_space.entity';
 import { ToolModule } from '../tools/tool.module';
+import { RoomModule } from '../room/room.module';
 
 
 @Module({
