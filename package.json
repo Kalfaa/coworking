@@ -22,6 +22,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@angular/core": "^10.1.1",
     "@google-cloud/storage": "^5.1.1",
     "@nestjs-modules/mailer": "^1.5.1",
     "@nestjs/common": "^7.0.0",
@@ -36,6 +37,7 @@
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.11.1",
+    "date-fns": "latest",
     "dialogflow": "^1.2.0",
     "dotenv": "^8.2.0",
     "file-type": "^14.6.0",
@@ -53,8 +55,7 @@
     "socket.io": "^2.3.0",
     "socket.io-redis": "^5.2.0",
     "swagger-ui-express": "^4.1.4",
-    "typeorm": "^0.2.24",
-    "date-fns": "latest"
+    "typeorm": "^0.2.24"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.0",
