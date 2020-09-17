@@ -37,7 +37,7 @@ export class OpenSpaceController {
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({type: OpenSpaceRO})
   async findById(@Param('id') id) {
-    let openSpace:OpenSpaceEntity = await this.openSpaceService.findOne(id,["tools"]);
+    let openSpace:OpenSpaceEntity = await this.openSpaceService.findOne(id,["tools","rooms"]);
     return openSpace.toResponseObject();
   }
 
@@ -45,7 +45,7 @@ export class OpenSpaceController {
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({type: [OpenSpaceRO]})
   async findAll(@User() user) {
-    let openSpaces =  await this.openSpaceService.findAll(["tools"]);
+    let openSpaces =  await this.openSpaceService.findAll(["tools","rooms"]);
     openSpaces.forEach(function(part, index) {
       this[index] = part.toResponseObject();
     }, openSpaces);

@@ -31,11 +31,16 @@ export class OpenSpaceEntity {
     @OneToMany(type => ToolEntity, tool => tool.openSpace)
     tools: ToolEntity[];
 
+    @OneToMany(type => RoomEntity, room => room.openSpace)
+    rooms: RoomEntity[];
+
     toResponseObject(): OpenSpaceRO {
       let res =[];
       this.tools.forEach(function(part) {
         res.push( part.toResponseObject())
       });
-      return {id:this.id,name:this.name,description:this.description,tools:res};
+
+
+      return {id:this.id,name:this.name,description:this.description,tools:res,rooms:this.rooms};
     }
 }

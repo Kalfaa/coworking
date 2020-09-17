@@ -88,7 +88,8 @@ describe("OpenSpace route", ()=>{
         id: id,
         name: 'Bastille',
         description: 'description',
-        tools:[]
+        tools:[],
+            rooms:[]
       });
   });
 
@@ -119,7 +120,8 @@ describe("OpenSpace route", ()=>{
         id: id,
         name: 'Bastille',
         description: 'description',
-        tools:[{ id: toolId, name: 'Imprimante' }]
+        tools:[{ id: toolId, name: 'Imprimante' }],
+            rooms:[]
       });
   });
 
@@ -278,6 +280,8 @@ describe("OpenSpace route", ()=>{
       .post('/reservation/').send(reservation).set('Authorization', 'Bearer ' + token)
       .expect(409);
   });
+
+
 
 
   afterAll(async () => {
