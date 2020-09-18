@@ -281,6 +281,13 @@ describe("OpenSpace route", ()=>{
       .expect(409);
   });
 
+    it('/ (Post) Get available', async () => {
+        let date = new Date(2018, 8, 22, 9, 0, 0);
+        let res = await  request(app.getHttpServer())
+            .get('/reservation/available/'+id+"/"+date).set('Authorization', 'Bearer ' + token)
+            .expect(200);
+        expect(res.body.length).toBe(5);
+    });
 
 
 

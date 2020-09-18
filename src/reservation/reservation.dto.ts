@@ -47,3 +47,10 @@ export class AddTools{
   @IsNotEmpty()
   tools: string[];
 }
+
+
+export class BeetweenDate{
+    @ApiPropertyOptional()
+    @IsNotEmpty()
+    start: Date;
+}

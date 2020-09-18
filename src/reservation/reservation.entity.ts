@@ -21,7 +21,7 @@ export class ReservationEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(type => RoomEntity)
+    @ManyToOne(type => RoomEntity,room=>room.id)
     room: RoomEntity;
 
     @OneToMany(type => ToolEntity, tool => tool.res)

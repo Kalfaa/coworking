@@ -6,7 +6,7 @@ import {JwtAuthGuard} from "../auth/jwt-auth.guard";
 import {User} from "../decorator/user.decorator";
 import { diskStorage } from  'multer';
 import { ToolEntity } from '../tools/tool.entity';
-import { AddTools, ReservationCreation, ReservationRO } from './reservation.dto';
+import {AddTools, BeetweenDate, ReservationCreation, ReservationRO} from './reservation.dto';
 import { ReservationService } from './reservation.service';
 import { Between, Not } from 'typeorm';
 import { ToolService } from '../tools/tool.service';
@@ -68,7 +68,6 @@ export class ReservationController {
       throw new HttpException('One of the tools is not available', HttpStatus.CONFLICT)
     }
     for (let i in reservationCreation.tools) {
-
       tools.push(await this.toolService.findOne(reservationCreation.tools[i]))
     }
     reservationCreation.tools = tools;
@@ -91,7 +90,7 @@ export class ReservationController {
       start: between,
       room: Not(reservation.room.id)
     }, { end: between, room: Not(reservation.room.id) }], ["tools", "room"]);
-    console.log(otherReservation);
+    //console.log(otherReservation);
     if (this.isOverlapingToolReservation(tools.tools, otherReservation)) {
       throw new HttpException('One of the tools is not available', HttpStatus.CONFLICT)
     }
@@ -106,8 +105,30 @@ export class ReservationController {
 
 
 
-
-
+  @Get('/available/:openSpaceId/:date')
+  @UseGuards(JwtAuthGuard)
+  async getAvailable(@Param('openSpaceId') openSpaceId,@Param('date') datestring){
+    console.log(openSpaceId);
+    let date:Date = new Date(datestring);
+    let end:Date = new Date(datestring);
+    console.log(date);
+    let result:object[] =[];
+    date.setHours(0);
+    date.setMinutes(0);
+    end.setHours(23);
+    end.setMinutes(59);
+    console.log(date);
+      console.log(end);
+    const between = Between(date, end);
+    let reservations: ReservationEntity[] = await this.reservationService.findSomeWithConditions([{ start: between }, { end: between}], ["tools", "room"]);
+      reservations.forEach(function(reservation) {
+          if(reservation.room.openSpace.id===openSpaceId){
+              result.push({start:reservation.start,end:reservation.end});
+          }
+      });
+      console.log(reservations);
+      return result;
+  }
 
 
 

@@ -26,7 +26,8 @@ export class RoomEntity {
     @Column('text')
     description: string;
 
-    @ManyToOne(type => OpenSpaceEntity, openSpace => openSpace.id)
+    @ManyToOne(type => OpenSpaceEntity, openSpace => openSpace.id,{eager: true})
+    @JoinColumn()
     openSpace: OpenSpaceEntity;
 
 
