@@ -15,7 +15,9 @@ import { ReservationEntity } from './reservation.entity';
 @Controller('reservation')
 @ApiTags('Reservation')
 export class ReservationController {
-  constructor(private readonly reservationService: ReservationService,
+
+
+    constructor(private readonly reservationService: ReservationService,
               private readonly toolService: ToolService) {
   }
 
@@ -108,30 +110,36 @@ export class ReservationController {
   @Get('/available/:openSpaceId/:date')
   @UseGuards(JwtAuthGuard)
   async getAvailable(@Param('openSpaceId') openSpaceId,@Param('date') datestring){
+        let listHour ={'8':0,'9':0,'10':0,'11':0,'12':0,'13':0,'14':0,'15':0,'16':0,'17':0,'18':0,'19':0,'20':0,'21':0};
     console.log(openSpaceId);
     let date:Date = new Date(datestring);
     let end:Date = new Date(datestring);
-    console.log(date);
     let result:object[] =[];
     date.setHours(0);
     date.setMinutes(0);
     end.setHours(23);
     end.setMinutes(59);
-    console.log(date);
-      console.log(end);
     const between = Between(date, end);
     let reservations: ReservationEntity[] = await this.reservationService.findSomeWithConditions([{ start: between }, { end: between}], ["tools", "room"]);
       reservations.forEach(function(reservation) {
+        console.log(openSpaceId);
+        console.log(reservation.room.openSpace.id);
           if(reservation.room.openSpace.id===openSpaceId){
-              result.push({start:reservation.start,end:reservation.end});
-          }
-      });
-      console.log(reservations);
-      return result;
+              result.push({start:reservation.start,end:reservation.end,tool:reservation.tools,room:reservation.room});
+              listHour = this.addListHour(listHour,reservation);
+          }},this);
+      console.log(listHour);
+      return {reservations:result,availableHour:listHour};
   }
 
-
-
+    addListHour(listHour,reservation:ReservationEntity){
+      let start:Date = reservation.start;
+      let end:Date = reservation.end;
+        for (let i = start.getHours(); i < end.getHours(); i++) {
+            listHour[i.toString()]+=1;
+        }
+        return listHour;
+    }
 
   isOverlapingToolReservation(tools:string[], otherResevation:ReservationEntity[]) {
     let reservationTools = [];

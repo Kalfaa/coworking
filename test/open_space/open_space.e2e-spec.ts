@@ -193,7 +193,6 @@ describe("OpenSpace route", ()=>{
     expect(res.body.length).toBe(2);
     idRes = res.body[0].id;
     idRes2 = res.body[1].id;
-
   });
 
 
