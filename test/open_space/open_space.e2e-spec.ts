@@ -10,7 +10,7 @@ import 'dotenv/config';
 import {UserEntity} from "../../src/user/user.entity";
 import { OpenSpaceModule } from '../../src/open_space/open_space.module';
 import { OpenSpaceCreation } from '../../src/open_space/open_space.dto';
-import { ToolCreation } from '../../src/tools/tool.dto';
+import {ToolCreation, ToolType} from '../../src/tools/tool.dto';
 import { ReservationModule } from '../../src/reservation/reservation.module';
 import { ReservationCreation } from '../../src/reservation/reservation.dto';
 import { RoomCreation } from '../../src/room/room.dto';
@@ -100,7 +100,7 @@ describe("OpenSpace route", ()=>{
   });
 
   it('/ (Post) Add tool', async () => {
-    let toolcreation:ToolCreation={name:"Imprimante"};
+    let toolcreation:ToolCreation={name:"Imprimante",type:ToolType.PRINTER};
     let res = await  request(app.getHttpServer())
       .post('/'+base+'/'+id+'/addTool').send(toolcreation).set('Authorization', 'Bearer ' + token)
       .expect(201);
@@ -120,7 +120,7 @@ describe("OpenSpace route", ()=>{
         id: id,
         name: 'Bastille',
         description: 'description',
-        tools:[{ id: toolId, name: 'Imprimante' }],
+        tools:[{ id: toolId, name: 'Imprimante',type:"PRINTER" }],
             rooms:[]
       });
   });
@@ -193,6 +193,7 @@ describe("OpenSpace route", ()=>{
     expect(res.body.length).toBe(2);
     idRes = res.body[0].id;
     idRes2 = res.body[1].id;
+    console.log(res.body)
   });
 
 
@@ -285,7 +286,7 @@ describe("OpenSpace route", ()=>{
         let res = await  request(app.getHttpServer())
             .get('/reservation/available/'+id+"/"+date).set('Authorization', 'Bearer ' + token)
             .expect(200);
-        expect(res.body.length).toBe(5);
+        expect(res.body.reservations.length).toBe(5);
     });
 
 

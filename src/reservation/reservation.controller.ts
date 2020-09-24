@@ -20,12 +20,24 @@ export class ReservationController {
     constructor(private readonly reservationService: ReservationService,
               private readonly toolService: ToolService) {
   }
+    @Get('myReservation')
+    @UseGuards(JwtAuthGuard)
+    @ApiCreatedResponse({ type: [ReservationRO] })
+    async findMyReservation(@User() user) {
+        let openSpaces = await this.reservationService.findSomeWithConditions({user:user.userId},["user","room", "tools"]);
+        openSpaces.forEach(function(part, index) {
+            this[index] = part.toResponseObject();
+        }, openSpaces);
+        return openSpaces
+    }
 
-  @Get(':id')
+
+
+    @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({ type: ReservationRO })
   async findById(@Param('id') id) {
-    let openSpace: ReservationEntity = await this.reservationService.findOne(id, ["room", "tools"]);
+    let openSpace: ReservationEntity = await this.reservationService.findOne(id, ["user","room", "tools"]);
     return openSpace.toResponseObject();
   }
 
@@ -33,12 +45,14 @@ export class ReservationController {
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({ type: [ReservationRO] })
   async findAll(@User() user) {
-    let openSpaces = await this.reservationService.findAll(["room", "tools"]);
+    let openSpaces = await this.reservationService.findAll(["user","room", "tools"]);
     openSpaces.forEach(function(part, index) {
       this[index] = part.toResponseObject();
     }, openSpaces);
     return openSpaces
   }
+
+
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
@@ -49,8 +63,8 @@ export class ReservationController {
 
   @Post('')
   @UseGuards(JwtAuthGuard)
-  async create(@Body() reservationCreation: ReservationCreation) {
-
+  async create(@Body() reservationCreation: ReservationCreation,@User() user) {
+    reservationCreation.user = user.userId;
     reservationCreation.start = new Date(reservationCreation.start);
     reservationCreation.end = new Date(reservationCreation.end);
     reservationCreation.start.setMinutes(1);
@@ -65,7 +79,7 @@ export class ReservationController {
       throw new HttpException('This room is not available for the selectioned date', HttpStatus.CONFLICT)
     }
     let tools: any = [];
-    let otherReservation: ReservationEntity[] = await this.reservationService.findSomeWithConditions([{ start: between }, { end: between }], ["tools", "room"]);
+    let otherReservation: ReservationEntity[] = await this.reservationService.findSomeWithConditions([{ start: between }, { end: between }], ["user","room", "tools"]);
     if(this.isOverlapingToolReservation(reservationCreation.tools,otherReservation)){
       throw new HttpException('One of the tools is not available', HttpStatus.CONFLICT)
     }
@@ -81,7 +95,7 @@ export class ReservationController {
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({})
   async addTools(@Param('id') id , @Body() tools:AddTools) {
-    let reservation: ReservationEntity = await this.reservationService.findOne(id, ["room", "tools"]);
+    let reservation: ReservationEntity = await this.reservationService.findOne(id, ["user","room", "tools"]);
     const between = Between(reservation.start, reservation.end);
     let idTools = this.arrayOfObjectToArrayOfId(reservation.tools);
     if(this.findCommonElement(tools.tools,idTools)){
@@ -91,7 +105,7 @@ export class ReservationController {
     let otherReservation: ReservationEntity[] = await this.reservationService.findSomeWithConditions([{
       start: between,
       room: Not(reservation.room.id)
-    }, { end: between, room: Not(reservation.room.id) }], ["tools", "room"]);
+    }, { end: between, room: Not(reservation.room.id) }], ["user","room", "tools"]);
     //console.log(otherReservation);
     if (this.isOverlapingToolReservation(tools.tools, otherReservation)) {
       throw new HttpException('One of the tools is not available', HttpStatus.CONFLICT)
@@ -120,15 +134,14 @@ export class ReservationController {
     end.setHours(23);
     end.setMinutes(59);
     const between = Between(date, end);
-    let reservations: ReservationEntity[] = await this.reservationService.findSomeWithConditions([{ start: between }, { end: between}], ["tools", "room"]);
+    let reservations: ReservationEntity[] = await this.reservationService.findSomeWithConditions([{ start: between }, { end: between}], ["user","room", "tools"]);
       reservations.forEach(function(reservation) {
         console.log(openSpaceId);
         console.log(reservation.room.openSpace.id);
           if(reservation.room.openSpace.id===openSpaceId){
-              result.push({start:reservation.start,end:reservation.end,tool:reservation.tools,room:reservation.room});
+              result.push({start:reservation.start,end:reservation.end,tool:reservation.tools,room:reservation.room,user:reservation.user});
               listHour = this.addListHour(listHour,reservation);
           }},this);
-      console.log(listHour);
       return {reservations:result,availableHour:listHour};
   }
 

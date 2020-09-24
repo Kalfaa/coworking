@@ -36,14 +36,23 @@ export class ReservationEntity {
     @Column("int")
     food:number;
 
+    @ManyToOne(type => UserEntity,user=>user.id)
+    user: UserEntity;
+
+
   toResponseObject(): ReservationRO {
     let res =[];
+    let user ;
     if(this.tools){
       this.tools.forEach(function(part) {
         res.push( part.toResponseObject())
       });
     }
 
-    return {id:this.id,room:this.room.toResponseObject(),tools:this.tools,start:this.start,end:this.end,food:this.food};
+      if(this.user){
+          user= this.user.toResponseObject();
+      }
+
+    return {id:this.id,room:this.room.toResponseObject(),tools:this.tools,start:this.start,end:this.end,food:this.food,user:user};
   }
 }

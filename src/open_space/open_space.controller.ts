@@ -22,7 +22,7 @@ export class OpenSpaceController {
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({})
   async addTool(@Param('id') id,@Body() toolCreation:ToolCreation) {
-     let tool = {name:toolCreation.name,openSpace:id};
+     let tool = {name:toolCreation.name,openSpace:id,type:toolCreation.type};
      return await this.toolService.create(tool);
   }
 

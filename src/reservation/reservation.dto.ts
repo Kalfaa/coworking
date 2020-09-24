@@ -2,6 +2,7 @@ import {ApiProperty, ApiPropertyOptional} from "@nestjs/swagger";
 import { IsNotEmpty } from 'class-validator';
 import { RoomRO } from '../room/room.dto';
 import { ToolRO } from '../tools/tool.dto';
+import {UserRO} from "../user/user.dto";
 
 
 export class ReservationRO {
@@ -16,7 +17,9 @@ export class ReservationRO {
   @ApiPropertyOptional()
   room:RoomRO;
   @ApiPropertyOptional()
-  tools:ToolRO[]
+  tools:ToolRO[];
+  @ApiPropertyOptional()
+  user:UserRO[]
 }
 
 export class ReservationCreation {
@@ -40,6 +43,8 @@ export class ReservationCreation {
   @ApiPropertyOptional()
   @IsNotEmpty()
   tools: string[];
+  @ApiPropertyOptional()
+  user?: string;
 }
 
 export class AddTools{
