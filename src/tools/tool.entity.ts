@@ -33,7 +33,7 @@ export class ToolEntity {
     })
     type:ToolType;
 
-    @ManyToOne(type => ReservationEntity, res => res.tools)
+    @ManyToOne(type => ReservationEntity, res => res.tools,{ onDelete: 'CASCADE' })
     @JoinColumn()
     res: ReservationEntity;
 

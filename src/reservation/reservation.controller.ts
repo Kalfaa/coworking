@@ -6,7 +6,7 @@ import {JwtAuthGuard} from "../auth/jwt-auth.guard";
 import {User} from "../decorator/user.decorator";
 import { diskStorage } from  'multer';
 import { ToolEntity } from '../tools/tool.entity';
-import {AddTools, BeetweenDate, ReservationCreation, ReservationRO} from './reservation.dto';
+import {AddTools, BeetweenDate, Food, ReservationCreation, ReservationRO} from './reservation.dto';
 import { ReservationService } from './reservation.service';
 import { Between, Not } from 'typeorm';
 import { ToolService } from '../tools/tool.service';
@@ -31,15 +31,13 @@ export class ReservationController {
         return openSpaces
     }
 
-
-
     @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiCreatedResponse({ type: ReservationRO })
-  async findById(@Param('id') id) {
-    let openSpace: ReservationEntity = await this.reservationService.findOne(id, ["user","room", "tools"]);
-    return openSpace.toResponseObject();
-  }
+    @UseGuards(JwtAuthGuard)
+    @ApiCreatedResponse({ type: ReservationRO })
+      async findById(@Param('id') id) {
+        let openSpace: ReservationEntity = await this.reservationService.findOne(id, ["user","room", "tools"]);
+        return openSpace.toResponseObject();
+      }
 
   @Get('')
   @UseGuards(JwtAuthGuard)
@@ -58,7 +56,10 @@ export class ReservationController {
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({})
   async delete(@Param('id') id) {
-    return await this.reservationService.delete(id);
+      let reservation: ReservationEntity = await this.reservationService.findOne(id, ["user","room", "tools"]);
+      reservation.tools = [];
+      await this.reservationService.update(reservation);
+      return await this.reservationService.delete(id);
   }
 
   @Post('')
@@ -120,12 +121,54 @@ export class ReservationController {
   }
 
 
+    @Post(':id/removeTools')
+    @UseGuards(JwtAuthGuard)
+    @ApiCreatedResponse({})
+    async removeTools(@Param('id') id , @Body() tools:AddTools) {
+        let reservation: ReservationEntity = await this.reservationService.findOne(id, ["user","room", "tools"]);
+        let find:boolean=false;
+        let res:any = [];
+        let toolsEntityArray = [];
+        for(let i in reservation.tools){
+            for (let j in tools.tools){
+                if(tools.tools[j] ===reservation.tools[i].id){
+                    find = true;
+                    break;
+                }
+            }
+            if(!find){
+              res.push(reservation.tools[i].id);
+            }
+            find=false;
+        }
+
+        for (let z in res) {
+            toolsEntityArray.push(await this.toolService.findOne(res[z]))
+        }
+        console.log(toolsEntityArray);
+        reservation.tools = toolsEntityArray;
+
+
+        return this.reservationService.update(reservation);
+
+    }
+
+    @Post(':id/changeFood')
+    @UseGuards(JwtAuthGuard)
+    @ApiCreatedResponse({})
+    async changeFood(@Param('id') id , @Body() food:Food) {
+        let reservation: ReservationEntity = await this.reservationService.findOne(id, ["user","room", "tools"]);
+        reservation.food= food.food;
+
+        return this.reservationService.update(reservation);
+
+    }
+
 
   @Get('/available/:openSpaceId/:date')
   @UseGuards(JwtAuthGuard)
   async getAvailable(@Param('openSpaceId') openSpaceId,@Param('date') datestring){
         let listHour ={'8':0,'9':0,'10':0,'11':0,'12':0,'13':0,'14':0,'15':0,'16':0,'17':0,'18':0,'19':0,'20':0,'21':0};
-    console.log(openSpaceId);
     let date:Date = new Date(datestring);
     let end:Date = new Date(datestring);
     let result:object[] =[];
@@ -136,8 +179,6 @@ export class ReservationController {
     const between = Between(date, end);
     let reservations: ReservationEntity[] = await this.reservationService.findSomeWithConditions([{ start: between }, { end: between}], ["user","room", "tools"]);
       reservations.forEach(function(reservation) {
-        console.log(openSpaceId);
-        console.log(reservation.room.openSpace.id);
           if(reservation.room.openSpace.id===openSpaceId){
               result.push({start:reservation.start,end:reservation.end,tool:reservation.tools,room:reservation.room,user:reservation.user});
               listHour = this.addListHour(listHour,reservation);

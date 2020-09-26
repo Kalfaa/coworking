@@ -24,7 +24,7 @@ export class ReservationEntity {
     @ManyToOne(type => RoomEntity,room=>room.id)
     room: RoomEntity;
 
-    @OneToMany(type => ToolEntity, tool => tool.res)
+    @OneToMany(type => ToolEntity, tool => tool.res, { onDelete: 'CASCADE' })
     tools: ToolEntity[];
 
     @Column("datetime")

@@ -26,6 +26,8 @@ let roomId;
 let roomId2;
 let idRes;
 let idRes2;
+let idRes3;
+let toolId2;
 describe("OpenSpace route", ()=>{
     beforeAll(async()=> {
     const module = await
@@ -193,7 +195,6 @@ describe("OpenSpace route", ()=>{
     expect(res.body.length).toBe(2);
     idRes = res.body[0].id;
     idRes2 = res.body[1].id;
-    console.log(res.body)
   });
 
 
@@ -259,16 +260,24 @@ describe("OpenSpace route", ()=>{
   });
 
 
-
+    it('/ (Post) Add tool', async () => {
+        let toolcreation:ToolCreation={name:"Imprimante 2",type:ToolType.PRINTER};
+        let res = await  request(app.getHttpServer())
+            .post('/'+base+'/'+id+'/addTool').send(toolcreation).set('Authorization', 'Bearer ' + token)
+            .expect(201);
+        toolId2 = res.body.id;
+    });
 
 
   it('/ (Post) Reservation with tool should be Ko', async () => {
     let start = new Date(2018, 8, 22, 12, 0, 0);
     let end = new Date(2018, 8, 22, 14, 0, 0);
-    let reservation:ReservationCreation = {start:start,end:   end,food:0,room:roomId2,tools:[toolId]};
-    return await  request(app.getHttpServer())
+    let reservation:ReservationCreation = {start:start,end:   end,food:0,room:roomId2,tools:[toolId,toolId2]};
+    let res = await  request(app.getHttpServer())
       .post('/reservation/').send(reservation).set('Authorization', 'Bearer ' + token)
       .expect(201);
+    idRes3 = res.body.id ;
+
   });
 
 
@@ -291,7 +300,69 @@ describe("OpenSpace route", ()=>{
 
 
 
-  afterAll(async () => {
+
+    it('/ (Post) Get Remove Tools', async () => {
+        let res = await  request(app.getHttpServer())
+            .post('/reservation/'+idRes3+'/removeTools').send({tools:[toolId]}).set('Authorization', 'Bearer ' + token)
+            .expect(201);
+    });
+
+    it('/ (Post) Retry', async () => {
+        let res = await  request(app.getHttpServer())
+            .get('/reservation/'+idRes3).set('Authorization', 'Bearer ' + token)
+            .expect(200);
+        expect(res.body.tools.length).toBe(1);
+    });
+    /*
+    it('/ (Post) Get Remove Tools 2', async () => {
+        let res = await  request(app.getHttpServer())
+            .post('/reservation/'+idRes3+'/removeTools').send({tools:[toolId2]}).set('Authorization', 'Bearer ' + token)
+            .expect(201);
+    });
+
+    it('/ (Post) Retry 2' , async () => {
+        let res = await  request(app.getHttpServer())
+            .get('/reservation/'+idRes3).set('Authorization', 'Bearer ' + token)
+            .expect(200);
+        expect(res.body.tools.length).toBe(0);
+    });*/
+    it('/ (Post) Get Tool has been added 1', async () => {
+        let res = await  request(app.getHttpServer())
+            .get('/tool/').set('Authorization', 'Bearer ' + token)
+            .expect(200);
+        expect(res.body.length).toBe(2);
+    });
+
+
+    it('/ (Post) Get Room has been added 1', async () => {
+        let res = await  request(app.getHttpServer())
+            .get('/room/').set('Authorization', 'Bearer ' + token)
+            .expect(200);
+        expect(res.body.length).toBe(2);
+    });
+
+    it('/ (Post) Delete  2' , async () => {
+        let res = await  request(app.getHttpServer())
+            .delete('/reservation/'+idRes3).set('Authorization', 'Bearer ' + token)
+            .expect(200);
+    });
+
+    it('/ (Post) Get Tool has been added 2', async () => {
+        let res = await  request(app.getHttpServer())
+            .get('/tool/').set('Authorization', 'Bearer ' + token)
+            .expect(200);
+        expect(res.body.length).toBe(2);
+    });
+
+
+
+
+
+
+
+
+
+    afterAll(async () => {
       await repository.query('DELETE FROM tools;');
       await repository.query('DELETE FROM reservations');
       await repository.query('DELETE FROM room;');

@@ -54,6 +54,12 @@ export class AddTools{
 }
 
 
+export class Food{
+    @ApiPropertyOptional()
+    @IsNotEmpty()
+    food: number;
+}
+
 export class BeetweenDate{
     @ApiPropertyOptional()
     @IsNotEmpty()
