@@ -1,9 +1,10 @@
 import {IsEmail, IsNotEmpty} from 'class-validator';
 import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
+import {SubscriptionEntity} from "../subscription/subscription.entity";
 
 export enum SubscriptionType {
   SIMPLE = "SIMPLE",
-  RESIDENT = "RESOLVE",
+  RESIDENT = "RESIDENT",
   NONE="NONE"
 }
 
@@ -63,6 +64,8 @@ export class UserRO {
     created: Date;
     @ApiPropertyOptional()
     isAdmin:boolean;
+    @ApiPropertyOptional()
+    subscription:any;
 }
 
 export class Token {

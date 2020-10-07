@@ -180,7 +180,7 @@ export class ReservationController {
     let reservations: ReservationEntity[] = await this.reservationService.findSomeWithConditions([{ start: between }, { end: between}], ["user","room", "tools"]);
       reservations.forEach(function(reservation) {
           if(reservation.room.openSpace.id===openSpaceId){
-              result.push({start:reservation.start,end:reservation.end,tool:reservation.tools,room:reservation.room,user:reservation.user});
+              result.push({start:reservation.start,end:reservation.end,tools:reservation.tools,room:reservation.room,user:reservation.user});
               listHour = this.addListHour(listHour,reservation);
           }},this);
       return {reservations:result,availableHour:listHour};

@@ -13,6 +13,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { SubscriptionEntity } from '../subscription/subscription.entity';
+import {ToolEntity} from "../tools/tool.entity";
+import {PaymentEntity} from "../payment/payment.entity";
 
 @Entity('user')
 export class UserEntity {
@@ -39,6 +41,8 @@ export class UserEntity {
     @OneToOne(type => SubscriptionEntity,sub=>sub.user)
     subscription: SubscriptionEntity;
 
+    @OneToMany(type => PaymentEntity, payment => payment.user, { onDelete: 'CASCADE' })
+    payments: PaymentEntity[];
 
   @BeforeInsert()
     async hashPassword() {
@@ -50,7 +54,7 @@ export class UserEntity {
     }
 
     toResponseObject(): UserRO {
-        return {id:this.id,created:this.created,username:this.username,isAdmin:this.isAdmin};
+        return {id:this.id,created:this.created,username:this.username,isAdmin:this.isAdmin,subscription:this.subscription};
     }
 
     }

@@ -33,6 +33,10 @@ export class UserController {
       async addSubscription(@User() user,@Body() addSubscription:AddSubscription)
       {
         let now = new Date();
+        let sub = await this.subscriptionService.findOneWithConditions({user:{id:user.userId}});
+        if(sub){
+            await this.subscriptionService.delete(sub.id);
+        }
         let endOfSubscription = new Date(now.setMonth(now.getMonth()+addSubscription.month));
         let createSubscription = {user:user.userId,end:endOfSubscription,type:addSubscription.subscriptionType};
         console.log(createSubscription);
