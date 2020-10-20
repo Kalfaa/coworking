@@ -13,6 +13,9 @@ import { SubscriptionType } from '../user/user.dto';
 import { ToolEntity } from '../tools/tool.entity';
 import { RoomEntity } from '../room/room.entity';
 import { OpenSpaceRO } from './open_space.dto';
+import {SubscriptionEntity} from "../subscription/subscription.entity";
+import {OpenHoursEntity} from "../open-hours/open-hours.entity";
+import {EventEntity} from "../event/event.entity";
 
 @Entity('open_space')
 export class OpenSpaceEntity {
@@ -24,7 +27,7 @@ export class OpenSpaceEntity {
     name: string;
 
     @Column('text',{
-    default: ''
+        default: ''
     })
     description:string;
 
@@ -34,13 +37,25 @@ export class OpenSpaceEntity {
     @OneToMany(type => RoomEntity, room => room.openSpace)
     rooms: RoomEntity[];
 
+    @OneToOne(openHours => OpenHoursEntity,{eager:true,cascade: true})
+    @JoinColumn()
+    openHours: OpenHoursEntity;
+
+    @OneToMany(type => EventEntity, event => event.openSpace)
+    events: EventEntity[];
+
     toResponseObject(): OpenSpaceRO {
       let res =[];
       this.tools.forEach(function(part) {
         res.push( part.toResponseObject())
       });
+      if(this.events!==undefined){
+          this.events.forEach(function(part) {
+              res.push( part.toResponseObject())
+          });
+      }
 
 
-      return {id:this.id,name:this.name,description:this.description,tools:res,rooms:this.rooms};
+      return {id:this.id,name:this.name,description:this.description,tools:res,rooms:this.rooms,openHours:this.openHours,events:this.events};
     }
 }

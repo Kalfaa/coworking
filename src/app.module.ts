@@ -6,11 +6,12 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import { OpenSpaceModule } from './open_space/open_space.module';
 import {ReservationModule} from "./reservation/reservation.module";
 import {RoomModule} from "./room/room.module";
+import {EventModule} from "./event/event.module";
 
 
 @Module({
   imports: [TypeOrmModule.forRoot(),AuthModule,OpenSpaceModule,ReservationModule,
-      RoomModule],
+      RoomModule,EventModule],
   controllers: [AppController],
   providers: [AppService],
 })

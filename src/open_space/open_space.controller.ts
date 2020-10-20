@@ -8,9 +8,10 @@ import {User} from "../decorator/user.decorator";
 import { diskStorage } from  'multer';
 import { OpenSpaceEntity } from './open_space.entity';
 import { OpenSpaceService } from './open_space.service';
-import { OpenSpaceCreation, OpenSpaceRO } from './open_space.dto';
+import {OpenHours, OpenSpaceCreation, OpenSpaceRO} from './open_space.dto';
 import { ToolCreation } from '../tools/tool.dto';
 import { ToolService } from '../tools/tool.service';
+import {OpenHoursEntity} from "../open-hours/open-hours.entity";
 @Controller('openspace')
 @ApiTags('OpenSpace')
 export class OpenSpaceController {
@@ -25,6 +26,15 @@ export class OpenSpaceController {
      let tool = {name:toolCreation.name,openSpace:id,type:toolCreation.type};
      return await this.toolService.create(tool);
   }
+
+    @Post(':id/changeHours/')
+    @UseGuards(JwtAuthGuard)
+    @ApiCreatedResponse({})
+    async changeHours(@Param('id') id,@Body() openHours:OpenHours) {
+        let openSpace:OpenSpaceEntity = await this.openSpaceService.findOne(id,["tools","rooms"]);
+        openSpace.openHours = this.openHourToEntity(openHours);
+        return await this.openSpaceService.update(openSpace);
+    }
 
   @Get(':id/getTools/')
   @UseGuards(JwtAuthGuard)
@@ -42,10 +52,9 @@ export class OpenSpaceController {
   }
 
   @Get('')
-  @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({type: [OpenSpaceRO]})
-  async findAll(@User() user) {
-    let openSpaces =  await this.openSpaceService.findAll(["tools","rooms"]);
+  async findAll() {
+    let openSpaces =  await this.openSpaceService.findAll(["tools","rooms","events"]);
     openSpaces.forEach(function(part, index) {
       this[index] = part.toResponseObject();
     }, openSpaces);
@@ -56,6 +65,9 @@ export class OpenSpaceController {
   @UseGuards(JwtAuthGuard)
   @ApiCreatedResponse({})
   async create(@Body() openSpace:OpenSpaceCreation) {
+    if(!openSpace.openHours){
+        openSpace.openHours = this.getDefaultOpenHours();
+    }
     return await this.openSpaceService.create(openSpace);
   }
 
@@ -67,5 +79,27 @@ export class OpenSpaceController {
     return await this.openSpaceService.delete(id);
   }
 
+  getDefaultOpenHours(){
+    let openHour: any = new OpenHoursEntity();
+    openHour.monday= { start:9 ,end:22};
+    openHour.tuesday= { start:9 ,end:22};
+    openHour.wednesday= { start:9 ,end:22};
+    openHour.thursday= { start:9 ,end:22};
+    openHour.friday= { start:9 ,end:22};
+    openHour.saturday= { start:9 ,end:22};
+    openHour.sunday= { start:9 ,end:22};
+    return openHour;
+  }
 
+  openHourToEntity(openHour:OpenHours){
+      let openHourEntity: any = new OpenHoursEntity();
+      openHourEntity.monday= openHour.monday;
+      openHourEntity.tuesday= openHour.tuesday;
+      openHourEntity.wednesday= openHour.wednesday;
+      openHourEntity.thursday= openHour.thursday;
+      openHourEntity.friday= openHour.friday;
+      openHourEntity.saturday= openHour.saturday;
+      openHourEntity.sunday= openHour.sunday;
+      return openHourEntity;
+  }
 }

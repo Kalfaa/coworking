@@ -69,7 +69,7 @@ describe("OpenSpace route", ()=>{
   });
 
   it('/ (Post) Create openspace should be ok ', () => {
-      let openspacecreation:OpenSpaceCreation = {name:"Bastille",description:"description"} ;
+      let openspacecreation:any = {name:"Bastille",description:"description"} ;
     return request(app.getHttpServer())
       .post('/'+base+'/').send(openspacecreation).set('Authorization', 'Bearer ' + token)
       .expect(201)
@@ -91,7 +91,7 @@ describe("OpenSpace route", ()=>{
         name: 'Bastille',
         description: 'description',
         tools:[],
-            rooms:[]
+            rooms:["e"]
       });
   });
 
@@ -360,10 +360,8 @@ describe("OpenSpace route", ()=>{
 
 
 
-
-
     afterAll(async () => {
-      await repository.query('DELETE FROM tools;');
+        await repository.query('DELETE FROM tools;');
       await repository.query('DELETE FROM reservations');
       await repository.query('DELETE FROM room;');
       await repository.query('DELETE FROM open_space;');
