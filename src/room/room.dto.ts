@@ -12,7 +12,9 @@ export class RoomRO {
   @ApiPropertyOptional()
   description: string;
   @ApiPropertyOptional()
-  openSpace:OpenSpaceRO
+  openSpace:OpenSpaceRO;
+  @ApiPropertyOptional()
+  image:string;
 }
 
 export class RoomCreation {

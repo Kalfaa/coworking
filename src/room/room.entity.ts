@@ -30,6 +30,11 @@ export class RoomEntity {
     @JoinColumn()
     openSpace: OpenSpaceEntity;
 
+  @Column('text',{
+    default: ''
+  })
+    image:string;
+
 
 /*
   @ManyToMany(type => ReservationEntity, reservation => reservation.room, {
@@ -40,6 +45,6 @@ export class RoomEntity {
 
   toResponseObject(): RoomRO {
     let res =[];
-    return {id:this.id,name:this.name,description:this.description,openSpace:this.openSpace};
+    return {id:this.id,name:this.name,description:this.description,openSpace:this.openSpace,image:this.image};
   }
 }

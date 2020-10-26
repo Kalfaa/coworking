@@ -31,12 +31,17 @@ export class UserController {
       @UseGuards(JwtAuthGuard)
       @Post('addSubscription')
       async addSubscription(@User() user,@Body() addSubscription:AddSubscription)
-      {
+      { let sub;
         let now = new Date();
-        let sub = await this.subscriptionService.findOneWithConditions({user:{id:user.userId}});
-        if(sub){
-            await this.subscriptionService.delete(sub.id);
+        try {
+           sub = await this.subscriptionService.findOneWithConditions({ user: { id: user.userId } });
+        }catch (e) {
+
         }
+        if (sub) {
+          await this.subscriptionService.delete(sub.id);
+        }
+
         let endOfSubscription = new Date(now.setMonth(now.getMonth()+addSubscription.month));
         let createSubscription = {user:user.userId,end:endOfSubscription,type:addSubscription.subscriptionType};
         console.log(createSubscription);

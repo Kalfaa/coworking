@@ -12,6 +12,25 @@ import { RoomService } from './room.service';
 import { RoomEntity } from './room.entity';
 import { RoomCreation, RoomRO } from './room.dto';
 import { OpenSpaceService } from '../open_space/open_space.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from "path";
+
+
+
+export const localStorageFileInterceptor = (fileName: string) => FileInterceptor(fileName,
+  {
+    storage: diskStorage({
+      destination: './image',
+      filename: (req, file, cb) => {
+        const randomName = Array(32)
+          .fill(null)
+          .map(() => (Math.round(Math.random() * 16)).toString(16))
+          .join('');
+        return cb(null, `${randomName}${extname(file.originalname)}`);
+      }
+    })
+  });
+
 @Controller('room')
 @ApiTags('Room')
 export class RoomController{
@@ -39,10 +58,15 @@ export class RoomController{
 
   @Post('')
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(localStorageFileInterceptor('file'))
   @ApiCreatedResponse({})
-  async create(@Body() room:RoomCreation) {
+  async create(@UploadedFile() file ,@Body() room:RoomCreation) {
+      let filepath ='';
+      if(file!==undefined){
+        filepath=file.filename;
+      }
       await this.openSpaceService.findOne(room.openSpace);
-      return await this.roomService.create(room);
+      return await this.roomService.create({image:filepath,...room});
   }
 
 
